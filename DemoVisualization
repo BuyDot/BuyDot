@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuyDot NFT Visualization</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+
+    h1 {
+      color: #333;
+      margin-top: 20px;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      margin: 20px auto;
+      background-color: #fff;
+    }
+
+    #info {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>BuyDot NFT Visualization</h1>
+  <p id="info">Each point represents a purchase. Watch as they form a unique piece of art!</p>
+  <canvas id="buyDotCanvas" width="800" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById("buyDotCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const points = [];
+    let animationFrame;
+
+    // Generate a random point
+    function randomPoint() {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+        size: Math.random() * 5 + 2,
+      };
+    }
+
+    // Create initial points
+    function generatePoints() {
+      for (let i = 0; i < 50; i++) {
+        points.push(randomPoint());
+      }
+    }
+
+    // Draw points on canvas
+    function drawPoints() {
+      points.forEach((point) => {
+        ctx.fillStyle = point.color;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, point.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    // Connect points to form lines
+    function connectPoints() {
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+      ctx.lineWidth = 0.5;
+      points.forEach((point1, index) => {
+        for (let j = index + 1; j < points.length; j++) {
+          const point2 = points[j];
+          const distance = Math.hypot(point2.x - point1.x, point2.y - point1.y);
+          if (distance < 150) {
+            ctx.beginPath();
+            ctx.moveTo(point1.x, point1.y);
+            ctx.lineTo(point2.x, point2.y);
+            ctx.stroke();
+          }
+        }
+      });
+    }
+
+    // Animate points
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPoints();
+      connectPoints();
+      movePoints();
+      animationFrame = requestAnimationFrame(animate);
+    }
+
+    // Move points slightly for animation
+    function movePoints() {
+      points.forEach((point) => {
+        point.x += (Math.random() - 0.5) * 2;
+        point.y += (Math.random() - 0.5) * 2;
+
+        // Keep points within canvas bounds
+        if (point.x > canvas.width) point.x = canvas.width;
+        if (point.x < 0) point.x = 0;
+        if (point.y > canvas.height) point.y = canvas.height;
+        if (point.y < 0) point.y = 0;
+      });
+    }
+
+    // Initialize the canvas
+    generatePoints();
+    animate();
+
+    // Stop the animation when the user leaves the page
+    window.addEventListener("blur", () => cancelAnimationFrame(animationFrame));
+    // Resume animation when the user returns
+    window.addEventListener("focus", () => animate());
+  </script>
+</body>
+</html>
